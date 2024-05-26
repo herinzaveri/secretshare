@@ -1,6 +1,10 @@
+import Stats from '@/components/stats';
 import Link from 'next/link';
+import {fetchMetrics} from './metrics';
 
-const Home = () => {
+const Home = async () => {
+  const metrics = await fetchMetrics();
+
   return (
     <div className="flex flex-col gap-8 pb-8 md:gap-16 md:pb-16 xl:pb-24">
       <div className="flex flex-col items-center
@@ -57,11 +61,11 @@ const Home = () => {
           </div>
         </div>
       </div>
-      {/* <h2 className="py-4 text-3xl font-bold text-center text-zinc-300 ">
+      <h2 className="py-4 text-3xl font-bold text-center text-zinc-300 ">
         Used and trusted by a growing community
-      </h2> */}
-      {/* <Stats />
-      <Testimonials /> */}
+      </h2>
+      <Stats readCount={metrics.readCount} writeCount={metrics.writeCount} />
+      {/* <Testimonials /> */}
     </div>
   );
 };

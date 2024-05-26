@@ -1,6 +1,7 @@
 import {NextRequest} from 'next/server';
 import {dbConnect} from '../db/mongo';
 import Message from '../models/product.model';
+import {incrReadCount, incrWriteCount} from '@/app/metrics';
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
@@ -21,6 +22,8 @@ export async function GET(request: NextRequest) {
     reads: message.reads + 1,
   }, {new: true});
 
+  await incrReadCount();
+
   return Response.json(message);
 }
 
@@ -38,6 +41,8 @@ export async function POST(request: Request) {
   });
 
   await message.save();
+
+  await incrWriteCount();
 
   return Response.json(message);
 }
