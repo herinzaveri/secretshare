@@ -1,6 +1,6 @@
 import {NextRequest} from 'next/server';
 import {dbConnect} from '../db/mongo';
-import Message from '../models/product.model';
+import Message from '../models/message.model';
 import {incrReadCount, incrWriteCount} from '@/app/metrics';
 
 export async function GET(request: NextRequest) {
@@ -28,12 +28,13 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: Request) {
-  const {encryptedText, ttl, reads, iv} = await request.json();
+  const {encryptedText, isImg, ttl, reads, iv} = await request.json();
 
   await dbConnect();
 
   const message = new Message({
     encryptedText,
+    isImg,
     ttl: Date.now() + ttl,
     maxReads: reads,
     reads: 0,

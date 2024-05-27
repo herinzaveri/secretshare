@@ -5,6 +5,9 @@ const messageSchema = new mongoose.Schema(
       encryptedText: {
         type: String,
       },
+      isImg: {
+        type: Boolean,
+      },
       maxReads: {
         type: Number,
       },

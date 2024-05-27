@@ -8,6 +8,7 @@ import axios from 'axios';
 
 const Page = () => {
   const [text, setText] = useState('');
+  const [isImg, setIsImg] = useState(false);
   const [reads, setReads] = useState(1);
 
   const [ttl, setTtl] = useState(1);
@@ -28,6 +29,7 @@ const Page = () => {
 
       const {data} = await axios.post('/api/messages', {
         encryptedText,
+        isImg,
         ttl: ttl * ttlMultiplier * 1000,
         reads,
         iv,
@@ -96,35 +98,45 @@ const Page = () => {
         >
           <Title>Share Secret</Title>
 
-          <pre className="px-4 py-3 mt-8 font-mono text-left bg-transparent border
-            rounded border-zinc-600 focus:border-zinc-100/80 focus:ring-0 sm:text-sm text-zinc-100"
-          >
-            <div className="flex items-start px-1 text-sm">
-              <div aria-hidden="true" className="pr-4 font-mono border-r select-none border-zinc-300/5 text-zinc-700">
-                {Array.from({
-                  length: text.split('\n').length,
-                }).map((_, index) => (
-                  <span key={generateKey(index)}>
-                    {(index + 1).toString().padStart(2, '0')}
-                    <br />
-                  </span>
-                ))}
-              </div>
+          {
+            isImg ? (
+              <img src={text} />
+            ) : (
+              <pre className="px-4 py-3 mt-8 font-mono text-left bg-transparent border
+              rounded border-zinc-600 focus:border-zinc-100/80 focus:ring-0 sm:text-sm text-zinc-100"
+              >
+                <div className="flex items-start px-1 text-sm">
+                  <div
+                    aria-hidden="true"
+                    className="pr-4 font-mono border-r
+                      select-none border-zinc-300/5 text-zinc-700"
+                  >
+                    {Array.from({
+                      length: text.split('\n').length,
+                    }).map((_, index) => (
+                      <span key={generateKey(index)}>
+                        {(index + 1).toString().padStart(2, '0')}
+                        <br />
+                      </span>
+                    ))}
+                  </div>
 
-              <textarea
-                id="text"
-                name="text"
-                value={text}
-                minLength={1}
-                onChange={(e) => setText(e.target.value)}
-                rows={Math.max(5, text.split('\n').length)}
-                placeholder="A secret message"
-                className="w-full p-0 text-base bg-transparent border-0
-                  appearance-none resize-none hover:resize text-zinc-100
-                  placeholder-zinc-500 focus:ring-0 sm:text-sm"
-              />
-            </div>
-          </pre>
+                  <textarea
+                    id="text"
+                    name="text"
+                    value={text}
+                    minLength={1}
+                    onChange={(e) => setText(e.target.value)}
+                    rows={Math.max(5, text.split('\n').length)}
+                    placeholder="A secret message"
+                    className="w-full p-0 text-base bg-transparent border-0
+                    appearance-none resize-none hover:resize text-zinc-100
+                    placeholder-zinc-500 focus:ring-0 sm:text-sm"
+                  />
+                </div>
+              </pre>
+            )
+          }
 
           <div className="flex flex-col items-center justify-center w-full gap-4 mt-4 sm:flex-row">
             <div className="w-full sm:w-1/5">
@@ -135,16 +147,17 @@ const Page = () => {
                   focus:ring-0 text-zinc-100 hover:text-white hover:cursor-pointer "
                 htmlFor="file_input"
               >
-                Upload a file
+                Upload an Image
               </label>
               <input
                 className="hidden"
                 id="file_input"
                 type="file"
+                accept="image/png, image/gif, image/jpeg"
                 onChange={(e) => {
                   const file = e.target.files![0];
                   if (file.size > 1024 * 1024 * 4) {
-                    setError('File size must be less than 4mb');
+                    setError('Image size must be less than 4mb');
                     return;
                   }
 
@@ -152,8 +165,9 @@ const Page = () => {
                   reader.onload = (e) => {
                     const t = e.target!.result as string;
                     setText(t);
+                    setIsImg(true);
                   };
-                  reader.readAsText(file);
+                  reader.readAsDataURL(file);
                 }}
               />
             </div>
